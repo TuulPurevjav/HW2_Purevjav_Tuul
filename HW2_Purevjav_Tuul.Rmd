@@ -1,0 +1,73 @@
+---
+title: "STAA 566 HW2 - Dynamic Figure"
+author: "Tuul Purevjav"
+date: "2/16/2022"
+output: html_document
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+My husband investigates stock trading as a side interest. He wanted to see a figure that shows a strategy commonly referred to as "golden cross and death cross." For this assignment, I visualized that strategy. I found my market data from Kaggle.com at https://www.kaggle.com/paultimothymooney/stock-market-data, and chose Amazon stock for my subject.  
+For a given stock, the daily price crossing over the 30-day (for example) moving average provides an entry price for buying a stock. The daily price crossing under 30-day average provides an exit price for selling a stock. These entry and exit prices provide strategy for taking profit more consistently than taking losses. I made a 30-day simple moving average. It's up to the trader to choose how many days, it could be as many as 200 days I believe. Statistically, this is a trailing indicator that takes advantage of the historical data to predict future entry and exit prices to maximize profit.
+
+```{r}
+library(readr)
+library(lubridate)
+library(dplyr)
+library(tidyr)
+library(xts)
+library(dygraphs)
+```
+
+```{r}
+shares <- read_csv("AMZN.csv")
+shares <-shares %>% 
+  # setting Date column as a date object in "dmy" format
+  mutate(Date = as.Date(parse_date_time(Date,"dmy")))
+head(shares,5)
+```
+
+```{r}
+# the market data is from 1997-05-15 to 2022-02-14
+# limit date range to greater "2019-12-31" 
+shares <-shares %>% 
+  filter(Date >= as.Date("2019-12-31"))
+# get columns relevant for the plot
+shares <-shares %>% 
+ select(Date, Close)
+```
+
+Here, I'm taking the daily price and the average of 30 day price to see where they cross (intercept) in the plot.
+```{r}
+# arrange by date
+# create daily price and 30 day lag variables
+shares <- shares %>%
+  arrange(Date) %>%
+  mutate(price_1day  = Close,
+         price_30day  = zoo::rollmean(price_1day, 30, fill=NA, align="right"))
+shares <- shares %>% 
+  select(Date, price_1day, price_30day) %>%
+  drop_na()
+```
+
+Since I want to show time series data in my figure, I used `dygraphs`.
+```{r}
+# make an xts object
+xts_1_30day <- xts::xts(x = shares %>% select(price_1day, price_30day),  # data (y axis)
+                     order.by = shares %>% pull(Date))                # date (x axis)
+dygraph(xts_1_30day)
+# improve labels
+# add range selection
+p_shares_dy <- dygraph(xts_1_30day) %>%
+  dySeries("price_1day", label = "1 Day Price") %>%
+  dySeries("price_30day", label = "30 Day Price")  %>%
+  dyRangeSelector()
+p_shares_dy
+```
+
