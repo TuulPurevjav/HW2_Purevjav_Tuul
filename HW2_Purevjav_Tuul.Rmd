@@ -13,8 +13,8 @@ knit: (function(input_file, encoding) {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-My husband investigates stock trading as a side interest. He wanted to see a figure that shows a strategy commonly referred to as "golden cross and death cross." For this assignment, I visualized that strategy. I found my market data from Kaggle.com at https://www.kaggle.com/paultimothymooney/stock-market-data, and chose Amazon stock for my subject.  
-For a given stock, the daily price crossing over the 30-day (for example) moving average provides an entry price for buying a stock. The daily price crossing under 30-day average provides an exit price for selling a stock. These entry and exit prices provide strategy for taking profit more consistently than taking losses. I made a 30-day simple moving average. It's up to the trader to choose how many days, it could be as many as 200 days I believe. Statistically, this is a trailing indicator that takes advantage of the historical data to predict future entry and exit prices to maximize profit.
+My husband investigates stock trading as a side interest. He wanted to see a figure that shows a strategy commonly referred to as "golden cross and death cross." For this assignment, I visualized that strategy. I found my market data from Kaggle.com at https://www.kaggle.com/paultimothymooney/stock-market-data, and chose Amazon stock as my subject.  
+For a given stock, the daily price crossing over 30-day (for example) moving average provides an entry price for buying a stock. The daily price crossing under 30-day average provides an exit price for selling a stock. These entry and exit prices provide strategy for taking profit more consistently than taking losses. I made a 30-day simple moving average. Typically, it's up to the trader to choose how many days, it could be as many as 200 days I believe. Statistically, this is a trailing indicator that takes advantage of the historical data to predict future entry and exit prices to maximize profit.
 
 ```{r message = FALSE}
 library(readr)
@@ -34,7 +34,7 @@ shares <-shares %>%
 
 ```{r}
 # the market data is from 1997-05-15 to 2022-02-14
-# limit date range to greater "2019-12-31" 
+# limit to date range greater than "2019-12-31" 
 shares <-shares %>% 
   filter(Date >= as.Date("2019-12-31"))
 # get columns relevant for the plot
@@ -42,7 +42,7 @@ shares <-shares %>%
  select(Date, Close)
 ```
 
-Here, I'm taking the daily price and the average of 30 day price to see where they cross (intercept) in the plot.
+Here, I'm taking the daily price and the average of 30 day price to see where they cross (intersect) in the plot.
 ```{r}
 # arrange by date
 # create daily price and 30 day lag variables
