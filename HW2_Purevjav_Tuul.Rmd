@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 My husband investigates stock trading as a side interest. He wanted to see a figure that shows a strategy commonly referred to as "golden cross and death cross." For this assignment, I visualized that strategy. I found my market data from Kaggle.com at https://www.kaggle.com/paultimothymooney/stock-market-data, and chose Amazon stock for my subject.  
 For a given stock, the daily price crossing over the 30-day (for example) moving average provides an entry price for buying a stock. The daily price crossing under 30-day average provides an exit price for selling a stock. These entry and exit prices provide strategy for taking profit more consistently than taking losses. I made a 30-day simple moving average. It's up to the trader to choose how many days, it could be as many as 200 days I believe. Statistically, this is a trailing indicator that takes advantage of the historical data to predict future entry and exit prices to maximize profit.
 
-```{r}
+```{r message = FALSE}
 library(readr)
 library(lubridate)
 library(dplyr)
@@ -26,11 +26,10 @@ library(dygraphs)
 ```
 
 ```{r}
-shares <- read_csv("AMZN.csv")
+shares <- read_csv("AMZN.csv", show_col_types = FALSE)
 shares <-shares %>% 
   # setting Date column as a date object in "dmy" format
   mutate(Date = as.Date(parse_date_time(Date,"dmy")))
-head(shares,5)
 ```
 
 ```{r}
@@ -61,9 +60,6 @@ Since I want to show time series data in my figure, I used `dygraphs`.
 # make an xts object
 xts_1_30day <- xts::xts(x = shares %>% select(price_1day, price_30day),  # data (y axis)
                      order.by = shares %>% pull(Date))                # date (x axis)
-dygraph(xts_1_30day)
-# improve labels
-# add range selection
 p_shares_dy <- dygraph(xts_1_30day) %>%
   dySeries("price_1day", label = "1 Day Price") %>%
   dySeries("price_30day", label = "30 Day Price")  %>%
